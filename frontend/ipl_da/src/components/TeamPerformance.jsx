@@ -17,7 +17,7 @@ function TeamPerformance({ team }) {
       .then(response => setSeasonPerformance(response.data));
   }, [team]);
 
-  if (!performance) return <div>Loading...</div>;
+  if (!performance || !seasonPerformance) return <div>Loading...</div>;
 
   const overallData = {
     labels: ['Wins', 'Losses', 'Ties'],

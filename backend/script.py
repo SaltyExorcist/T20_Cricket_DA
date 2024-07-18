@@ -227,7 +227,7 @@ def get_season_overview():
             bowl AS name,
             COUNT(CASE WHEN outcome = 'out' THEN 1 END) AS wickets
             FROM ipl_matches
-            WHERE year = '2016'
+            WHERE year = %s
             GROUP BY bowl
             ORDER BY COUNT(CASE WHEN outcome = 'out' THEN 1 END) DESC
             LIMIT 5
