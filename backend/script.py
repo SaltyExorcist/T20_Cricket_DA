@@ -90,25 +90,25 @@ def get_player_stats():
     
     # Batting stats
     cur.execute("""
-        SELECT 
-            SUM(CAST(batruns AS INTEGER)) AS total_runs,
-            SUM(CAST(ballfaced AS INTEGER)) AS balls_faced,
-            ROUND(
-                CASE
-                    WHEN SUM(CAST(ballfaced AS FLOAT)) = 0 THEN 0
-                    ELSE CAST(SUM(CAST(batruns AS FLOAT)) / SUM(CAST(ballfaced AS FLOAT)) * 100 AS NUMERIC)
-                END, 2
-            ) AS strike_rate,
-            ROUND(
-            CAST(
-                CASE 
-                WHEN COUNT(CASE WHEN outcome = 'out' THEN 1 END) = 0 THEN SUM(CAST(batruns AS FLOAT))
-                ELSE SUM(CAST(batruns AS FLOAT)) / COUNT(CASE WHEN outcome = 'out' THEN 1 END)
-                END AS NUMERIC
-            ), 2
-            ) AS average
-            FROM ipl_matches
-            WHERE bat = %s
+            SELECT 
+                SUM(CAST(batruns AS INTEGER)) AS total_runs,
+                SUM(CAST(ballfaced AS INTEGER)) AS balls_faced,
+                ROUND(
+                    CASE
+                        WHEN SUM(CAST(ballfaced AS FLOAT)) = 0 THEN 0
+                        ELSE CAST(SUM(CAST(batruns AS FLOAT)) / SUM(CAST(ballfaced AS FLOAT)) * 100 AS NUMERIC)
+                    END, 2
+                ) AS strike_rate,
+                ROUND(
+                CAST(
+                    CASE 
+                    WHEN COUNT(CASE WHEN outcome = 'out' THEN 1 END) = 0 THEN SUM(CAST(batruns AS FLOAT))
+                    ELSE SUM(CAST(batruns AS FLOAT)) / COUNT(CASE WHEN outcome = 'out' THEN 1 END)
+                    END AS NUMERIC
+                ), 2
+                ) AS average
+                FROM ipl_matches
+                WHERE bat = %s
     """, (player,))
     batting_stats = cur.fetchone()
     
@@ -332,6 +332,41 @@ def get_player_matchup():
     conn.close()
 
     return jsonify(matchup)
+
+    # 6. Scat
+@app.route('/api/scatter')
+def get_scatter_stats():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Scatterplot
+    cur.execute("""
+        SELECT 
+            bat AS batsman,
+            ROUND(
+                CASE
+                    WHEN SUM(CAST(ballfaced AS FLOAT)) = 0 THEN 0
+                    ELSE CAST(SUM(CAST(batruns AS FLOAT)) / SUM(CAST(ballfaced AS FLOAT)) * 100 AS NUMERIC)
+                END, 2
+            ) AS strike_rate,
+            ROUND(
+                CAST(
+                    CASE 
+                        WHEN COUNT(CASE WHEN outcome = 'out' THEN 1 END) = 0 THEN SUM(CAST(batruns AS FLOAT))
+                        ELSE SUM(CAST(batruns AS FLOAT)) / COUNT(CASE WHEN outcome = 'out' THEN 1 END)
+                    END AS NUMERIC
+                ), 2
+            ) AS average
+        FROM ipl_matches
+        GROUP BY bat
+        HAVING COUNT(DISTINCT p_match) > 25
+        ORDER BY batsman;
+    """)
+    bat_stats = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    return jsonify(bat_stats)
 
 if __name__ == '__main__':
     app.run(debug=True)

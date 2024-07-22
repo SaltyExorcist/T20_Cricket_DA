@@ -7,6 +7,7 @@ import TeamComparison from './components/TeamComparison';
 import SeasonOverview from './components/SeasonOverview';
 import PlayerMatchup from './components/PlayerMatchup';
 import './App.css';
+import BattingStatsScatterplot from './components/BattingStatsScatterplot';
 
 // Simple Button component
 const Button = ({ onClick, children }) => (
@@ -221,6 +222,7 @@ function App() {
         {selectedMatch && <MatchSummary matchId={selectedMatch} />}
         {selectedSeason && <SeasonOverview season={selectedSeason} />}
         {<PlayerMatchup />}
+        {<BattingStatsScatterplot />}
       </div>
     </div>
   );
