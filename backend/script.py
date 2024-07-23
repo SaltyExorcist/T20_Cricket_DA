@@ -334,12 +334,12 @@ def get_player_matchup():
     return jsonify(matchup)
 
     # 6. Scat
-@app.route('/api/scatter')
-def get_scatter_stats():
+@app.route('/api/batscatter')
+def get_batscatter_stats():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     
-    # Scatterplot
+    # Batting Scatterplot
     cur.execute("""
         SELECT 
             bat AS batsman,
@@ -367,6 +367,27 @@ def get_scatter_stats():
     cur.close()
     conn.close()
     return jsonify(bat_stats)
+
+@app.route('/api/bowlscatter')
+def get_bowlscatter_stats():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Bowling Scatterplot
+    cur.execute("""
+        SELECT 
+            bowl AS bowler,
+            ROUND(CAST(SUM(CAST(bowlruns AS FLOAT)) / NULLIF(COUNT(*) / 6.0, 0) AS NUMERIC), 2) AS economy,
+            ROUND(CAST(SUM(CAST(bowlruns AS FLOAT)) / NULLIF(COUNT(CASE WHEN outcome = 'out' AND dismissal != 'run out' THEN 1 END), 0) AS NUMERIC), 2) AS average
+        FROM ipl_matches
+        GROUP BY bowl
+        HAVING COUNT(DISTINCT p_match) > 25 
+    """)
+    bowl_stats = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    return jsonify(bowl_stats)
 
 if __name__ == '__main__':
     app.run(debug=True)
