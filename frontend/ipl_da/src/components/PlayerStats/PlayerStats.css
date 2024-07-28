@@ -1,0 +1,48 @@
+.player-stats {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
+  .player-stats h2, .player-stats h3 {
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 15px;
+  }
+  
+  .stats-container {
+    margin-bottom: 20px;
+  }
+  
+  .stats-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .stats-table th, .stats-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+  }
+  
+  .stats-table th {
+    background-color: #333;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.95);
+  }
+  
+  .stats-table tr:last-child th,
+  .stats-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .stats-table tr:nth-child(even) {
+    background-color: #2f2f2f;
+  }
+  
+  .stats-table tr:hover {
+    background-color: #3a3a3a;
+  }

@@ -389,5 +389,42 @@ def get_bowlscatter_stats():
     conn.close()
     return jsonify(bowl_stats)
 
+    # 6. Player Stats API
+@app.route('/api/player-performance')
+def get_player_statsbyyear():
+    player = request.args.get('player')
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Batting stats
+    cur.execute("""
+            SELECT 
+                year,
+                SUM(CAST(batruns as INTEGER)) as runs,
+                ROUND(
+                    CASE
+                        WHEN SUM(CAST(ballfaced AS FLOAT)) = 0 THEN 0
+                        ELSE CAST(SUM(CAST(batruns AS FLOAT)) / SUM(CAST(ballfaced AS FLOAT)) * 100 AS NUMERIC)
+                    END, 2
+                ) AS strike_rate,
+                ROUND(
+                CAST(
+                    CASE 
+                    WHEN COUNT(CASE WHEN outcome = 'out' THEN 1 END) = 0 THEN SUM(CAST(batruns AS FLOAT))
+                    ELSE SUM(CAST(batruns AS FLOAT)) / COUNT(CASE WHEN outcome = 'out' THEN 1 END)
+                    END AS NUMERIC
+                ), 2
+                ) AS average
+            FROM ipl_matches
+            WHERE bat = %s
+            GROUP BY year
+            ORDER BY year
+    """, (player,))
+    stats = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    return jsonify(stats)
+
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,88 @@
+.player-matchup {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
+  .player-matchup h2 {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 20px;
+  }
+  
+  .player-selection {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .player-selection select {
+    width: 30%;
+    padding: 8px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #333;
+    color: rgba(255, 255, 255, 0.87);
+  }
+  
+  .player-selection button {
+    padding: 8px 16px;
+    background-color: #0056b3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .player-selection button:hover {
+    background-color: #003d82;
+  }
+  
+  .matchup-data {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .matchup-data h3 {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 15px;
+  }
+  
+  .matchup-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .matchup-table th, .matchup-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #444;
+  }
+  
+  .matchup-table th {
+    background-color: #2a2a2a;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.95);
+  }
+  
+  .matchup-table tr:last-child th,
+  .matchup-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .matchup-table tr:nth-child(even) {
+    background-color: #2f2f2f;
+  }
+  
+  .matchup-table tr:hover {
+    background-color: #3a3a3a;
+  }
+  

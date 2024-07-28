@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Scatter } from 'react-chartjs-2';
 import { Chart as ChartJS, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
-import '../App.css';
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -146,7 +145,7 @@ const BattingStatsScatterplot = () => {
           />
         </div>
       </div>
-      <div className="chart-container" style={{ height: '600px', width: '100%' }}>
+      <div className="chart-container" style={{ height: '800px', width: '800px', left:'50' }}>
         <Scatter data={data} options={options} />
       </div>
     </div>

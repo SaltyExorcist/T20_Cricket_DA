@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './PlayerMatchup.css'
+import SearchBar from '../SearchBar';
 
 function PlayerMatchup() {
   const [batsmen, setBatsmen] = useState([]);
@@ -30,30 +32,22 @@ function PlayerMatchup() {
     <div className="player-matchup">
       <h2>Player Matchup</h2>
       <div className="player-selection">
-        <select 
-          value={selectedBatsman} 
-          onChange={(e) => setSelectedBatsman(e.target.value)}
-        >
-          <option value="">Select Batsman</option>
-          {batsmen.map(player => (
-            <option key={player} value={player}>{player}</option>
-          ))}
-        </select>
-        <select 
-          value={selectedBowler} 
-          onChange={(e) => setSelectedBowler(e.target.value)}
-        >
-          <option value="">Select Bowler</option>
-          {bowlers.map(player => (
-            <option key={player} value={player}>{player}</option>
-          ))}
-        </select>
+        <SearchBar
+          items={batsmen}
+          placeholder="Search for a batsman"
+          onSelect={setSelectedBatsman}
+        />
+        <SearchBar
+          items={bowlers}
+          placeholder="Search for a bowler"
+          onSelect={setSelectedBowler}
+        />
         <button onClick={fetchMatchupData}>Get Matchup Data</button>
       </div>
       {matchupData && (
         <div className="matchup-data">
           <h3>{selectedBatsman} vs {selectedBowler}</h3>
-          <table>
+          <table className='matchup-table'>
             <tbody>
               <tr>
                 <th>Balls Faced:</th>

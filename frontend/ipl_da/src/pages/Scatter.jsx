@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import BattingStatsScatterplot from '../components/BattingStatsScatterplot';
-import '../App.css';
-import BowlingStatsScatterplot from '../components/BowlingStatsScatterplot';
+import BattingStatsScatterplot from '../components/ScatterPlots/BattingStatsScatterplot';
+import BowlingStatsScatterplot from '../components/ScatterPlots/BowlingStatsScatterplot';
 
 const About = () => {
   return (
