@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './PlayerStats.css'
 import PlayerPerformanceChart from '../PlayerPerformanceChart';
+import PlayerContributionTreemap from '../PlayerContributionTreemap';
+import PlayerRoleAnalysis from '../PlayerRoleAnalysis';
 
 function PlayerStats({ player }) {
   const [stats, setStats] = useState(null);
@@ -17,6 +19,7 @@ function PlayerStats({ player }) {
   return (
     <div className="player-stats">
       <PlayerPerformanceChart playerName={player} />
+      <PlayerContributionTreemap teamName="Royal Challengers Bangalore" season="2016" />
       <h2>{player} Statistics</h2>
       
       <div className="stats-container">
@@ -73,6 +76,7 @@ function PlayerStats({ player }) {
         ) : (
           <p>No bowling data available</p>
         )}
+        <PlayerRoleAnalysis playerName='Jasprit Bumrah'/>
       </div>
     </div>
   );

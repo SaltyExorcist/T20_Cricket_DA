@@ -426,5 +426,174 @@ def get_player_statsbyyear():
     conn.close()
     return jsonify(stats)
 
+
+
+@app.route('/api/team-contributions')
+def get_player_contri():
+    # Extract the team and year from the request arguments
+    team = request.args.get('team', 'India')  # default to 'India' if not provided
+    year = request.args.get('year', '2016')   # default to '2018' if not provided
+
+    # Connect to the database
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Batting stats query
+    cur.execute("""
+        SELECT 
+            bat AS player_name,
+            SUM(CAST(batruns AS INTEGER)) AS runs
+        FROM ipl_matches
+        WHERE team_bat = %s AND year = %s
+        GROUP BY bat
+    """, (team, year))
+    bat_stats = cur.fetchall()
+
+    # Bowling stats query
+    cur.execute("""
+        SELECT 
+            bowl AS player_name,
+            COUNT(CASE WHEN outcome = 'out' AND dismissal != 'run out' THEN 1 END) AS wickets
+        FROM ipl_matches
+        WHERE team_bowl = %s AND year = %s
+        GROUP BY bowl
+    """, (team, year))
+    bowl_stats = cur.fetchall()
+    
+    # Combine batting and bowling stats
+    player_contributions = {}
+
+    for bat_stat in bat_stats:
+        player_name = bat_stat['player_name']
+        if player_name not in player_contributions:
+            player_contributions[player_name] = {'name': player_name, 'runs': 0, 'wickets': 0}
+        player_contributions[player_name]['runs'] = bat_stat['runs']
+
+    for bowl_stat in bowl_stats:
+        player_name = bowl_stat['player_name']
+        if player_name not in player_contributions:
+            player_contributions[player_name] = {'name': player_name, 'runs': 0, 'wickets': 0}
+        player_contributions[player_name]['wickets'] = bowl_stat['wickets']
+    
+    # Close the cursor and connection
+    cur.close()
+    conn.close()
+
+    # Convert the player contributions to a list
+    contributions_list = list(player_contributions.values())
+
+    # Return the data in the specified format
+    return jsonify(contributions_list)
+
+
+@app.route('/api/player-run-distribution')
+def get_player_run_distribution():
+    #player = request.args.get('player')
+    
+    #if not player:
+    #return jsonify({'error': 'Please provide a player name'}), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    
+    # Query to get player's run distribution, seasons, and opponents
+    run_distribution_query = """
+        SELECT 
+            SUM(CAST(batruns AS INTEGER)) AS runs,
+            team_bowl AS opponent
+        FROM ipl_matches
+        WHERE bat = 'Virat Kohli'
+        GROUP BY p_match, team_bowl
+        ORDER BY p_match, team_bowl
+    """
+    cur.execute(run_distribution_query)
+    innings_data = cur.fetchall()
+
+    # Extract unique seasons and opponents
+    #seasons = sorted(set([row['season'] for row in distribution_data]))
+    #opponents = sorted(set([row['opponent'] for row in distribution_data]))
+
+    cur.close()
+    conn.close()
+
+    # Format the response
+    response = {
+        'distribution': [
+            {'runs': row['runs'], 'opponent': row['opponent']}
+            for row in innings_data
+        ]
+    }
+
+    return jsonify(response)
+
+@app.route('/api/player-role-analysis')
+def get_player_role_analysis():
+    #player = request.args.get('player')
+    
+    #if not player:
+     #   return jsonify({'error': 'Please provide a player name'}), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    batting_query = """
+        SELECT 
+            CASE 
+                WHEN CAST(over AS INTEGER) <= 6 THEN 'Powerplay'
+                WHEN CAST(over AS INTEGER) BETWEEN 7 AND 15 THEN 'Middle Overs'
+                ELSE 'Death Overs'
+            END AS role,
+            SUM(CAST(batruns AS INTEGER)) AS runs,
+            ROUND(
+                    CASE
+                        WHEN SUM(CAST(ballfaced AS FLOAT)) = 0 THEN 0
+                        ELSE CAST(SUM(CAST(batruns AS FLOAT)) / SUM(CAST(ballfaced AS FLOAT)) * 100 AS NUMERIC)
+                    END, 2
+                ) AS strike_rate,
+                ROUND(
+                CAST(
+                    CASE 
+                    WHEN COUNT(CASE WHEN outcome = 'out' THEN 1 END) = 0 THEN SUM(CAST(batruns AS FLOAT))
+                    ELSE SUM(CAST(batruns AS FLOAT)) / COUNT(CASE WHEN outcome = 'out' THEN 1 END)
+                    END AS NUMERIC
+                ), 2
+                ) AS average
+        FROM ipl_matches
+        WHERE bat = 'Virat Kohli'
+        GROUP BY role
+    """
+    cur.execute(batting_query)
+    batting_data = cur.fetchall()
+
+    # Query to get bowling role analysis with type casting
+    bowling_query = """
+        SELECT 
+            CASE 
+                WHEN CAST(over AS INTEGER) <= 6 THEN 'Powerplay'
+                WHEN CAST(over AS INTEGER) BETWEEN 7 AND 15 THEN 'Middle Overs'
+                ELSE 'Death Overs'
+            END AS role,
+            COUNT(CASE WHEN outcome = 'out' AND dismissal != 'run out' THEN 1 END) AS wickets,
+            ROUND(CAST(SUM(CAST(bowlruns AS FLOAT)) / NULLIF(COUNT(*) / 6.0, 0) AS NUMERIC), 2) AS economy_rate,
+            ROUND(CAST(SUM(CAST(bowlruns AS FLOAT)) / NULLIF(COUNT(CASE WHEN outcome = 'out' AND dismissal != 'run out' THEN 1 END), 0) AS NUMERIC), 2) AS average,
+            ROUND(CAST(CAST(COUNT(*) AS FLOAT) / NULLIF(COUNT(CASE WHEN outcome = 'out' AND dismissal != 'run out' THEN 1 END), 0) AS NUMERIC), 2) AS strike_rate
+        FROM ipl_matches
+        WHERE bowl = 'Jasprit Bumrah'
+        GROUP BY role
+    """
+    cur.execute(bowling_query)
+    bowling_data = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    # Format the response
+    response = {
+        'batting': batting_data,
+        'bowling': bowling_data
+    }
+
+    return jsonify(response)
+
 if __name__ == '__main__':
     app.run(debug=True)
